@@ -1,0 +1,21 @@
+# Machine-specific configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor and operating-system state
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.obsidian/
+*.swp
+*~
+
+# Local caches and temporary work
+.cache/
+.tmp/
+__pycache__/
+*.pyc
