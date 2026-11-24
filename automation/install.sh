@@ -10,7 +10,7 @@
 #   automation/install.sh --no-reminders      no morning job at all
 #   automation/install.sh --uninstall         turn everything off
 #
-# It installs up to two launchd jobs, named after this folder, and writes this
+# It installs up to two launchd jobs, named after this folder and its path, and writes this
 # clone's settings to .git/kb-automation.conf. It doesn't change Claude Code's
 # own settings.
 set -eu
@@ -18,7 +18,9 @@ set -eu
 [ "$(uname)" = Darwin ] || { echo "This installer is for macOS (launchd)."; exit 1; }
 source "$(dirname "$0")/lib.sh"
 
-name=$(basename "$KB_REPO" | tr -c 'A-Za-z0-9.-' '-' | sed 's/-*$//')
+# The folder name keeps job names readable; a hash of the full path keeps two
+# knowledge bases in folders with the same name apart.
+name=$(basename "$KB_REPO" | tr -c 'A-Za-z0-9.-' '-' | sed 's/-*$//')-$(printf '%s' "$KB_REPO" | shasum | cut -c1-8)
 agents="$HOME/Library/LaunchAgents"
 logfile="$HOME/Library/Logs/knowledge-base-$name.log"
 domain="gui/$(id -u)"

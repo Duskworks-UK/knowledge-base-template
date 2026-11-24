@@ -56,7 +56,7 @@ In Claude Code, this repository starts the `assistant` agent and lets it edit wi
 
 The automation makes the wiki keep itself up to date when you aren't in a conversation:
 
-- **Filing:** anything that lands in `wiki/inbox/` is filed within a minute or so by the `filer` agent, running headless with `claude -p`. It follows the schema, sorts quick captures into tasks, projects, and the journal, moves each item to `raw/`, logs what it did, and sets aside anything it can't file in `inbox/held/`.
+- **Filing:** anything that lands in `wiki/inbox/` is filed within a minute or so by the `filer` agent, running headless with `claude -p`. It follows the schema, sorts quick captures into tasks, projects, and the journal, moves each item to `raw/`, logs what it did, and sets aside anything it can't file in `inbox/held/`. If an item holds credentials or personal details your policy excludes, only a redacted copy reaches `raw/`; the original waits in `inbox/held/` for you to check and delete. The inbox is never committed.
 - **Quick capture:** `automation/capture.sh "Book the MOT next Friday"` drops a note in the inbox. Put it behind an Apple Shortcut (a "Run Shell Script" action with the input passed as stdin), a Raycast or Alfred command, or a keyboard shortcut. Files dragged into `wiki/inbox/` are filed too, and so are notes your other Claude Code sessions write there.
 - **Reminders:** every morning, a notification lists the tasks in `wiki/tasks.md` that are due or overdue. This is a plain script and doesn't use Claude.
 - **Morning brief** *(optional)*: the assistant writes a short brief at the top of today's journal page: what's due, what's coming up, what's stuck, and what needs your decision.
