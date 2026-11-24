@@ -1,0 +1,19 @@
+{
+  "agent": "assistant",
+  "permissions": {
+    "defaultMode": "acceptEdits"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/automation/commit.sh\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
