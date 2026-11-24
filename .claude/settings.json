@@ -9,7 +9,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/automation/commit.sh\"",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/automation/commit.sh\"",
             "timeout": 60
           }
         ]

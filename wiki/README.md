@@ -72,6 +72,6 @@ Updating a page's edit date does not mean its claims have been rechecked. Record
 
 ## Keep work across machines
 
-Git records and shares changes when you commit, push, and pull them. Ask the agent to do that explicitly when wanted, or turn on the [automation](../README.md#personal-assistant-and-automation-claude-code-on-macos), which commits wiki changes as they happen and can push. Nothing pulls changes from other clones automatically. The inbox isn't committed, so items waiting there or held by the filer stay on the machine that received them.
+Git records and shares changes when you commit, push, and pull them. Ask the agent to do that explicitly when wanted, or turn on the [automation](../README.md#personal-assistant-and-automation-claude-code), which commits wiki changes as they happen and can push. Nothing pulls changes from other clones automatically. The inbox isn't committed, so items waiting there or held by the filer stay on the machine that received them.
 
 Each clone is another working copy of the same knowledge base. Bring it up to date before editing, review changes before publishing, and resolve simultaneous edits deliberately.

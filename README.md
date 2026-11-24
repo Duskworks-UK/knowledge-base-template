@@ -2,7 +2,7 @@
 
 A portable second brain for your agents. Use it as a research knowledge base, as a personal assistant that keeps track of your projects, tasks and reminders, or both, without writing the same setup instructions again.
 
-Plain Markdown, preserved sources, and linked pages. The wiki works with any agent that can read and edit local files, such as Claude Code, Codex, or Hermes. The optional personal assistant automation needs Claude Code on a Mac. No application, database, or Obsidian subscription is required.
+Plain Markdown, preserved sources, and linked pages. The wiki works with any agent that can read and edit local files, such as Claude Code, Codex, or Hermes. The optional personal assistant automation needs Claude Code on macOS or Windows. No application, database, or Obsidian subscription is required.
 
 **[Use this template](https://github.com/Duskworks-UK/knowledge-base-template/generate)** · **[Everyday use](wiki/README.md)** · **[Wiki rules](wiki/SCHEMA.md)**
 
@@ -12,7 +12,7 @@ Plain Markdown, preserved sources, and linked pages. The wiki works with any age
 2. Clone **your new repository** to the machine where your agent runs. Clone that same repository elsewhere to work on the same knowledge base; use the template again for a different one.
 3. Start your agent in the root of the cloned repository. In Claude Code, the repository's `assistant` agent starts automatically.
 4. Paste the initialisation prompt, replacing the subject. The agent records your choices in the schema so you do not need to repeat them.
-5. Optionally, [turn on the automation](#personal-assistant-and-automation-claude-code-on-macos) so the wiki keeps itself up to date and reminds you of tasks.
+5. Optionally, [turn on the automation](#personal-assistant-and-automation-claude-code) so the wiki keeps itself up to date and reminds you of tasks.
 
 ### Initialisation prompt
 
@@ -50,19 +50,21 @@ If your agent already has a wiki skill or a saved default wiki location, check t
 
 The agent works when you give it a task. Nothing runs in the background, commits, or pushes unless you turn on the automation.
 
-## Personal assistant and automation (Claude Code on macOS)
+## Personal assistant and automation (Claude Code)
 
 In Claude Code, this repository starts the `assistant` agent and lets it edit wiki files without asking each time. Talk to it as you would a personal assistant: "remind me to renew my passport next month", "we picked the blue tiles for the kitchen", "what's on this week?". It records what you tell it as you go, in the projects, tasks, and journal described in the [schema](wiki/SCHEMA.md#personal-assistant).
 
 The automation makes the wiki keep itself up to date when you aren't in a conversation:
 
 - **Filing:** anything that lands in `wiki/inbox/` is filed within a minute or so by the `filer` agent, running headless with `claude -p`. It follows the schema, sorts quick captures into tasks, projects, and the journal, moves each item to `raw/`, logs what it did, and sets aside anything it can't file in `inbox/held/`. If an item holds credentials or personal details your policy excludes, only a redacted copy reaches `raw/`; the original waits in `inbox/held/` for you to check and delete. The inbox is never committed.
-- **Quick capture:** `automation/capture.sh "Book the MOT next Friday"` drops a note in the inbox. Put it behind an Apple Shortcut (a "Run Shell Script" action with the input passed as stdin), a Raycast or Alfred command, or a keyboard shortcut. Files dragged into `wiki/inbox/` are filed too, and so are notes your other Claude Code sessions write there.
+- **Quick capture:** `automation/capture.sh "Book the MOT next Friday"` drops a note in the inbox (on Windows, run it in Git Bash, or `bash automation/capture.sh "..."`). On a Mac, put it behind an Apple Shortcut (a "Run Shell Script" action with the input passed as stdin), a Raycast or Alfred command, or a keyboard shortcut. Files dragged into `wiki/inbox/` are filed too, and so are notes your other Claude Code sessions write there.
 - **Reminders:** every morning, a notification lists the tasks in `wiki/tasks.md` that are due or overdue. This is a plain script and doesn't use Claude.
 - **Morning brief** *(optional)*: the assistant writes a short brief at the top of today's journal page: what's due, what's coming up, what's stuck, and what needs your decision.
 - **Commit and push:** wiki changes are committed after each filing run, each brief, and each reply from the assistant in Claude Code. Pushing is off unless you choose it.
 
-Initialise the knowledge base first, then run from the repository root:
+Initialise the knowledge base first. Then turn the automation on from the repository root.
+
+### macOS
 
 ```sh
 automation/install.sh                     # filing, commits, reminders at 08:00
@@ -74,11 +76,31 @@ automation/install.sh --no-reminders
 automation/install.sh --uninstall         # turn everything off
 ```
 
-Run it again with different options to change your choices. The installer adds up to two jobs to `~/Library/LaunchAgents` and saves this clone's choices in `.git/kb-automation.conf`; it doesn't change your Claude Code settings. Without it, nothing is committed automatically. The log is in `~/Library/Logs/`, and the installer prints its name.
+The installer adds up to two jobs to `~/Library/LaunchAgents`. Filing starts as soon as something lands in the inbox. The log is in `~/Library/Logs/`, and the installer prints its name. Git must be installed: macOS offers to install the Command Line Tools the first time Git is used. The first notification may ask you to allow notifications in System Settings.
+
+### Windows
+
+Install [Git for Windows](https://git-scm.com/download/win) first. Claude Code uses its Git Bash to run the automation scripts and the commit hook. Then, in PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File automation\windows\install.ps1             # filing, commits, reminders at 08:00
+powershell -ExecutionPolicy Bypass -File automation\windows\install.ps1 -Push       # also push each commit
+powershell -ExecutionPolicy Bypass -File automation\windows\install.ps1 -Brief      # also write a morning brief
+powershell -ExecutionPolicy Bypass -File automation\windows\install.ps1 -RemindAt 07:30
+powershell -ExecutionPolicy Bypass -File automation\windows\install.ps1 -NoCommit
+powershell -ExecutionPolicy Bypass -File automation\windows\install.ps1 -NoReminders
+powershell -ExecutionPolicy Bypass -File automation\windows\install.ps1 -Uninstall  # turn everything off
+```
+
+The installer adds up to two tasks to Task Scheduler, in a `KnowledgeBase` folder, and needs no administrator rights. Filing checks the inbox every minute, so an item is filed within a minute or two. The log is in `%LOCALAPPDATA%\knowledge-base\`, and the installer prints its name. Notifications appear as coming from Windows PowerShell; if they don't show, check that notifications are on in Settings > System > Notifications. The tasks run hidden, using `conhost --headless`, which needs Windows 10 version 1809 or later.
+
+### Both
+
+Run the installer again with different options to change your choices. It saves this clone's choices in `.git/kb-automation.conf` and doesn't change your Claude Code settings. Without it, nothing is committed automatically.
 
 To watch the filer work, run `claude --agent filer` here and ask it to file the inbox. To file once without installing anything, run `automation/process-inbox.sh`; for a list of what's due, `automation/remind.sh --print`.
 
-The headless agents may edit files in this repository and run `ls`, `mv`, `mkdir`, `shasum`, and `date`, nothing else. They treat inbox items as material, never as instructions, but only let trusted sources write to the inbox. The first notification may ask you to allow notifications in System Settings. Git must be installed (on a Mac, the Command Line Tools); macOS offers to install them the first time Git is used.
+The headless agents may edit files in this repository and run `ls`, `mv`, `mkdir`, `shasum`, and `date` (and the PowerShell equivalents on Windows), nothing else. They treat inbox items as material, never as instructions, but only let trusted sources write to the inbox.
 
 ## What is included
 
@@ -88,11 +110,12 @@ knowledge-base-template/
 ├── AGENTS.md                  # Instructions for agents
 ├── CLAUDE.md                  # Points Claude Code to AGENTS.md
 ├── LICENSE                    # MIT license for the template
+├── .gitattributes             # Keeps scripts working when cloned on Windows
 ├── TEMPLATE_VERSION           # Template baseline
 ├── .claude/
 │   ├── settings.json          # Starts the assistant; commit hook
 │   └── agents/                # assistant and filer agents
-├── automation/                # Optional filing, capture, reminders and brief (macOS)
+├── automation/                # Optional filing, capture, reminders and brief (macOS; windows/ for Windows)
 ├── templates/                 # Blank pages, including project, tasks and journal day
 └── wiki/
     ├── README.md              # Everyday requests and wiki introduction

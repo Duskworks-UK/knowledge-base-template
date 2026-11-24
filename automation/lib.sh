@@ -9,7 +9,10 @@
 #   KB_BRIEF=1    write a morning brief with Claude (reminders run either way)
 # With no config, nothing is committed or pushed.
 
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+# Add the usual tool folders in front of the inherited PATH, never replacing it:
+# launchd starts with a minimal PATH on macOS, and on Windows the inherited PATH
+# holds Git, powershell.exe and Claude Code.
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin${PATH:+:$PATH}"
 
 KB_REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 KB_WIKI="$KB_REPO/wiki"
@@ -87,9 +90,17 @@ kb_commit() {
   rmdir "$lock"
 }
 
-# kb_notify TITLE MESSAGE: a macOS notification, if possible.
+kb_is_windows() { case "$(uname -s)" in MINGW* | MSYS* | CYGWIN*) return 0 ;; *) return 1 ;; esac; }
+
+# kb_notify TITLE MESSAGE: a macOS or Windows notification, if possible.
 kb_notify() {
   [ "${KB_NOTIFY:-1}" = 1 ] || return 0
+  if kb_is_windows; then
+    command -v powershell.exe >/dev/null || return 0
+    MSYS2_ARG_CONV_EXCL='*' powershell.exe -NoProfile -ExecutionPolicy Bypass \
+      -File "$(cygpath -w "$KB_REPO/automation/windows/notify.ps1")" -Title "$1" -Message "$2" || true
+    return 0
+  fi
   command -v osascript >/dev/null || return 0
   osascript -e 'on run argv' -e 'display notification (item 2 of argv) with title (item 1 of argv)' -e 'end run' "$1" "$2" >/dev/null 2>&1 || true
 }
@@ -97,3 +108,7 @@ kb_notify() {
 # Tools the headless agents may use: edits inside this repository, plus a few
 # file commands. acceptEdits keeps Edit and Write inside the working directory.
 KB_AGENT_TOOLS=("Read" "Edit" "Write" "Glob" "Grep" "Bash(ls:*)" "Bash(mv:*)" "Bash(mkdir:*)" "Bash(shasum:*)" "Bash(date:*)")
+# On Windows, Claude Code may reach for its PowerShell tool instead of Bash.
+if kb_is_windows; then
+  KB_AGENT_TOOLS+=("PowerShell(Get-ChildItem:*)" "PowerShell(Move-Item:*)" "PowerShell(New-Item:*)" "PowerShell(Get-Date:*)" "PowerShell(Get-FileHash:*)")
+fi

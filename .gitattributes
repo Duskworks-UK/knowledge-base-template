@@ -1,0 +1,7 @@
+# Keep shell scripts in Unix line endings on every platform. Git for Windows
+# otherwise checks them out with Windows line endings, and bash then fails
+# with errors like "$'\r': command not found".
+*.sh text eol=lf
+
+# PowerShell scripts work either way; Windows line endings suit Notepad.
+*.ps1 text eol=crlf
