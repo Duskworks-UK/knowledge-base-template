@@ -4,13 +4,15 @@ This repository contains a portable Markdown knowledge base. The root README is 
 
 ## Start each task
 
-1. Resolve this repository's location and select its `wiki/` directory. For Hermes, load the available `llm-wiki` skill and inspect its resolved wiki location. A mismatched or missing location must not send writes to another wiki. Use the intended path explicitly; do not silently change a shared profile default.
+1. Resolve this repository's location and select its `wiki/` directory. If a general wiki skill or a default wiki location is configured, check that it resolves to this same directory. A mismatched or missing location must not send writes to another wiki. Use the intended path explicitly; do not silently change shared agent configuration.
 2. Read `wiki/SCHEMA.md`, `wiki/index.md`, and the recent entries in `wiki/log.md`. Search and read only the pages and source passages relevant to the task.
 3. Apply the schema's conventions when a general wiki skill suggests different formatting, page thresholds, or source-update behaviour. If an instruction conflict cannot be resolved, explain it before the affected write.
 
 ## Initialisation and scope
 
-- When asked to initialise a new knowledge base, collect missing purpose, audience, scope, and source preferences. Save these in the schema and update the wiki introduction. Leave unanswered fields explicitly unset.
+- When asked to initialise a new knowledge base, collect missing purpose, audience, scope, mode, and source preferences. Save these in the schema and update the wiki introduction. Leave unanswered fields explicitly unset.
+- In `personal` or `both` mode, initialisation also creates `wiki/projects/` and `wiki/journal/` (each with a `.gitkeep`) and `wiki/tasks.md` from `templates/`, adds a `## Projects` section to the index, and asks for the personal information policy.
+- Personal information belongs only in a private repository. Before recording any in `personal` or `both` mode, check where the repository is hosted. If it is public, or you cannot tell, tell the user and do not record personal details until they confirm.
 - This upstream template intentionally has no domain and no content. When maintaining the template itself, preserve that state; do not initialise it as a knowledge base about the template.
 - Keep the generic instructions, templates, and actual wiki content separate. Blank templates and example requests are not evidence.
 - Keep knowledge-base work inside the selected repository. Do not change the agent's identity, global memory, installed skills, unrelated wikis, or shared configuration as part of normal wiki work.
@@ -30,3 +32,4 @@ This repository contains a portable Markdown knowledge base. The root README is 
 - Append a concise entry to `wiki/log.md` for meaningful wiki changes or a maintenance review. List affected files and unresolved issues. Routine answers that change nothing need no log entry.
 - Report what changed and what remains uncertain. Distinguish completed checks from checks that were not run.
 - Commit, push, publish, schedule work, or change repository settings only when the user requests those actions. Local wiki editing alone does not imply them.
+- The optional automation in `automation/` files the inbox with the `filer` agent, sends morning reminders, can write a morning brief, and commits wiki changes, including after each reply in Claude Code. The user turns it on with `automation/install.sh`, which records the clone's commit and push choices. Never install, change, or remove it yourself unless asked.

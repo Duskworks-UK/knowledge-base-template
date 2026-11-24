@@ -13,6 +13,20 @@ Confirm which knowledge base you are using, then help me with [task].
 
 Only relevant pages and source passages need to be loaded. The wiki is durable context; it does not need to be pasted into every conversation.
 
+## Projects, tasks and reminders
+
+In personal mode, just tell the assistant, in your own words:
+
+```text
+Remind me to book the MOT next Friday.
+We've decided on the blue tiles for the kitchen; the fitter starts on the 9th.
+Start a project for the job search.
+What's due this week? What's stuck?
+I've done the passport renewal.
+```
+
+Tasks live in `tasks.md`, projects in `projects/`, and each day's notes in `journal/`. If the automation is on, you also get a morning notification for anything due, and quick captures sent to the inbox are filed for you.
+
 ## Add material
 
 Put files or notes in `inbox/`, or provide a source directly:
@@ -58,6 +72,6 @@ Updating a page's edit date does not mean its claims have been rechecked. Record
 
 ## Keep work across machines
 
-Git records and shares changes when you commit, push, and pull them. Ask the agent to do that explicitly when wanted. This template does not automatically synchronise files or run background maintenance.
+Git records and shares changes when you commit, push, and pull them. Ask the agent to do that explicitly when wanted, or turn on the [automation](../README.md#personal-assistant-and-automation-claude-code-on-macos), which commits wiki changes as they happen and can push. Nothing pulls changes from other clones automatically. The inbox isn't committed, so items waiting there or held by the filer stay on the machine that received them.
 
 Each clone is another working copy of the same knowledge base. Bring it up to date before editing, review changes before publishing, and resolve simultaneous edits deliberately.

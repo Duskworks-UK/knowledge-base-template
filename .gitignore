@@ -19,3 +19,9 @@ Thumbs.db
 .tmp/
 __pycache__/
 *.pyc
+
+# Inbox items are never committed: unprocessed captures and held items can
+# contain material the filer hasn't checked or has refused. Filed items move
+# to wiki/raw/, which is committed.
+wiki/inbox/*
+!wiki/inbox/.gitkeep
