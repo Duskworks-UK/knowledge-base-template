@@ -9,7 +9,10 @@
 #   KB_BRIEF=1    write a morning brief with Claude (reminders run either way)
 # With no config, nothing is committed or pushed.
 
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+# Add the usual tool folders in front of the inherited PATH, never replacing it:
+# launchd starts with a minimal PATH on macOS, and on Windows the inherited PATH
+# holds Git, powershell.exe and Claude Code.
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin${PATH:+:$PATH}"
 
 KB_REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 KB_WIKI="$KB_REPO/wiki"
