@@ -87,9 +87,17 @@ kb_commit() {
   rmdir "$lock"
 }
 
-# kb_notify TITLE MESSAGE: a macOS notification, if possible.
+kb_is_windows() { case "$(uname -s)" in MINGW* | MSYS* | CYGWIN*) return 0 ;; *) return 1 ;; esac; }
+
+# kb_notify TITLE MESSAGE: a macOS or Windows notification, if possible.
 kb_notify() {
   [ "${KB_NOTIFY:-1}" = 1 ] || return 0
+  if kb_is_windows; then
+    command -v powershell.exe >/dev/null || return 0
+    MSYS2_ARG_CONV_EXCL='*' powershell.exe -NoProfile -ExecutionPolicy Bypass \
+      -File "$(cygpath -w "$KB_REPO/automation/windows/notify.ps1")" -Title "$1" -Message "$2" || true
+    return 0
+  fi
   command -v osascript >/dev/null || return 0
   osascript -e 'on run argv' -e 'display notification (item 2 of argv) with title (item 1 of argv)' -e 'end run' "$1" "$2" >/dev/null 2>&1 || true
 }
@@ -97,3 +105,7 @@ kb_notify() {
 # Tools the headless agents may use: edits inside this repository, plus a few
 # file commands. acceptEdits keeps Edit and Write inside the working directory.
 KB_AGENT_TOOLS=("Read" "Edit" "Write" "Glob" "Grep" "Bash(ls:*)" "Bash(mv:*)" "Bash(mkdir:*)" "Bash(shasum:*)" "Bash(date:*)")
+# On Windows, Claude Code may reach for its PowerShell tool instead of Bash.
+if kb_is_windows; then
+  KB_AGENT_TOOLS+=("PowerShell(Get-ChildItem:*)" "PowerShell(Move-Item:*)" "PowerShell(New-Item:*)" "PowerShell(Get-Date:*)" "PowerShell(Get-FileHash:*)")
+fi

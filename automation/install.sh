@@ -15,7 +15,7 @@
 # own settings.
 set -eu
 
-[ "$(uname)" = Darwin ] || { echo "This installer is for macOS (launchd)."; exit 1; }
+[ "$(uname)" = Darwin ] || { echo "This installer is for macOS (launchd). On Windows, run automation\\windows\\install.ps1 in PowerShell."; exit 1; }
 source "$(dirname "$0")/lib.sh"
 
 # The folder name keeps job names readable; a hash of the full path keeps two
