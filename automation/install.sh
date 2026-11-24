@@ -56,6 +56,20 @@ done
 [ "$brief" = 1 ] && [ "$reminders" = 0 ] && { echo "--brief runs with the morning job; drop --no-reminders."; exit 1; }
 kb_is_git || { [ "$commit" = 0 ] || echo "Note: this folder isn't a Git repository, so nothing will be committed."; }
 
+# Older copies may have committed inbox files before the inbox was ignored.
+# Automatic commits skip the inbox anyway, but those files stay in history and
+# in any later manual commit, so say how to stop tracking them.
+if kb_is_git; then
+  tracked=$(git -C "$KB_REPO" ls-files -- wiki/inbox | grep -v '^wiki/inbox/\.gitkeep$' || true)
+  if [ -n "$tracked" ]; then
+    echo "Warning: Git is tracking files in wiki/inbox, which should stay out of the repository:"
+    sed 's/^/  /' <<<"$tracked"
+    echo "Automatic commits will leave them out. To stop tracking them while keeping the files, run:"
+    echo "  git rm -r --cached -- wiki/inbox && git add wiki/inbox/.gitkeep && git commit -m 'Stop tracking the inbox'"
+    echo "Files committed before stay in the history; if they hold anything private, clean the history before pushing."
+  fi
+fi
+
 xml() { sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' <<<"$1"; }
 
 # write_plist LABEL SCRIPT TRIGGER_XML

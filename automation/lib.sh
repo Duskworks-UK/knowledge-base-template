@@ -57,6 +57,10 @@ kb_lock() {
   trap 'rmdir "$KB_LOCK" 2>/dev/null' EXIT
 }
 
+# What automatic commits cover: wiki/, but never the inbox, even if inbox
+# files were tracked before the inbox was ignored.
+KB_COMMIT_PATHS=(wiki ':(exclude)wiki/inbox')
+
 # kb_commit MESSAGE: commit changes under wiki/ (and push) if turned on.
 kb_commit() {
   [ "$KB_COMMIT" = 1 ] || return 0
@@ -68,11 +72,11 @@ kb_commit() {
   lock=$(kb_state_path kb-commit.lock)
   [ -n "$(find "$lock" -maxdepth 0 -mmin +2 2>/dev/null)" ] && rmdir "$lock" 2>/dev/null
   mkdir "$lock" 2>/dev/null || return 0
-  git -C "$KB_REPO" add -A -- wiki
-  if git -C "$KB_REPO" diff --cached --quiet -- wiki; then
+  git -C "$KB_REPO" add -A -- "${KB_COMMIT_PATHS[@]}"
+  if git -C "$KB_REPO" diff --cached --quiet -- "${KB_COMMIT_PATHS[@]}"; then
     rmdir "$lock"; return 0
   fi
-  if git -C "$KB_REPO" commit -q -m "$1" -- wiki; then
+  if git -C "$KB_REPO" commit -q -m "$1" -- "${KB_COMMIT_PATHS[@]}"; then
     kb_log "committed $(git -C "$KB_REPO" rev-parse --short HEAD): $1"
     if [ "$KB_PUSH" = 1 ]; then
       git -C "$KB_REPO" push -q 2>&1 && kb_log "pushed" || kb_log "push failed"
